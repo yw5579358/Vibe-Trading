@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-200 antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+  /* 中文段落更舒适的行高 */
+  p {
+    line-height: 1.85;
+  }
+  /* 代码 */
+  code, pre {
+    font-family: theme('fontFamily.mono');
+  }
+  :not(pre) > code {
+    @apply bg-slate-100 dark:bg-slate-800 text-brand-700 dark:text-brand-300
+           px-1.5 py-0.5 rounded text-[0.875em] border border-slate-200 dark:border-slate-700;
+  }
+  pre {
+    @apply bg-slate-900 dark:bg-black text-slate-100 rounded-lg
+           p-4 overflow-x-auto text-[13px] leading-relaxed;
+  }
+  /* 滚动条 */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { @apply bg-transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-slate-300 dark:bg-slate-700 rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-slate-400 dark:bg-slate-600; }
+}
+
+@layer components {
+  /* 内容容器宽度 */
+  .prose-content {
+    @apply max-w-3xl mx-auto;
+  }
+  /* 段落 */
+  .lead {
+    @apply text-lg text-slate-600 dark:text-slate-400 leading-relaxed;
+  }
+}

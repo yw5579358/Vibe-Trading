@@ -51,11 +51,17 @@ data/parquet/
 data/backup/
 
 # Internal docs (plans, specs)
-docs/
+# 用 docs/** 而非 docs/，否则 git 不进入子目录，无法用 ! 重新包含
+docs/**
 !wiki/docs/
 !wiki/docs/**
 docs/screenshots/agent-run.png
 docs/screenshots/boot.png
+# 学习指南站点（部署到 GitHub Pages）
+!docs/learning-site/
+!docs/learning-site/**
+!docs/learning-guide/
+!docs/learning-guide/**
 data/minutes/
 data/overnight*.log
 data/*.log
