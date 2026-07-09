@@ -4,8 +4,9 @@ import { Home } from './pages/Home';
 import { Architecture } from './pages/Architecture';
 import { Quant } from './pages/Quant';
 import { Trading } from './pages/Trading';
-import { Operations } from './pages/Operations';
 import { Finance } from './pages/Finance';
+import { Capability } from './pages/Capability';
+import { Operations } from './pages/Operations';
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
             <Route path="/quant" element={<Quant />} />
             <Route path="/trading" element={<Trading />} />
             <Route path="/finance" element={<Finance />} />
+            <Route path="/capability" element={<Capability />} />
             <Route path="/operations" element={<Operations />} />
           </Routes>
         </div>
