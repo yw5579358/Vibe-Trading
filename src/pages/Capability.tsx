@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Wrench, BookOpen, Search, ShieldCheck, Zap, TrendingUp, BarChart3, Database, Bot, Brain } from 'lucide-react';
 import { PageHero } from '../components/Layout';
-import { Section, Card, Callout, CompareTable, SubHeading, Pill, Details } from '../components/ui';
+import { Section, Card, Callout, CompareTable, SubHeading, Pill, Details, Modal } from '../components/ui';
+import { TOOL_DETAILS } from '../data/toolDetails';
 
 /* =========================================================================
  *  数据：72 个工具（按 9 类分组）
@@ -262,14 +263,19 @@ const totalTools = TOOL_CATS.reduce((s, c) => s + c.tools.length, 0);
 const totalSkills = SKILL_CATS.reduce((s, c) => s + c.skills.length, 0);
 
 /* =========================================================================
- *  工具卡片
+ *  工具卡片（可点击弹窗）
  * ===================================================================== */
-function ToolRow({ t }: { t: Tool }) {
+function ToolRow({ t, onClick }: { t: Tool; onClick: () => void }) {
+  const hasDetail = !!TOOL_DETAILS[t.name];
   return (
-    <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 hover:border-brand-300 dark:hover:border-brand-700 transition-colors">
+    <button
+      onClick={onClick}
+      className="w-full text-left rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 hover:border-brand-300 dark:hover:border-brand-700 hover:shadow-sm transition-all"
+    >
       <div className="flex items-start justify-between gap-2 mb-1">
         <code className="text-brand-600 dark:text-brand-400 text-[13px] font-semibold">{t.name}</code>
         <div className="flex gap-1 shrink-0">
+          {hasDetail && <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">详情</span>}
           {t.ro
             ? <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">只读</span>
             : <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300">写</span>}
@@ -278,7 +284,7 @@ function ToolRow({ t }: { t: Tool }) {
       </div>
       <p className="text-[13px] text-slate-600 dark:text-slate-400 leading-snug">{t.desc}</p>
       <p className="text-[11px] text-slate-400 mt-1">必填: <code className="!text-[11px]">{t.req}</code></p>
-    </div>
+    </button>
   );
 }
 
@@ -287,6 +293,7 @@ function ToolRow({ t }: { t: Tool }) {
  * ===================================================================== */
 export function Capability() {
   const [query, setQuery] = useState('');
+  const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
 
   const filterTools = (t: Tool) => {
     if (!query) return true;
@@ -366,7 +373,7 @@ export function Capability() {
                   <Pill tone={tc.tone}>{filtered.length} 个</Pill>
                 </div>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {filtered.map(t => <ToolRow key={t.name} t={t} />)}
+                  {filtered.map(t => <ToolRow key={t.name} t={t} onClick={() => setSelectedTool(t)} />)}
                 </div>
               </div>
             );
@@ -388,6 +395,55 @@ export function Capability() {
           <p className="mt-3"><code>trading_place_order</code> 和 <code>trading_cancel_order</code> 的 <code>repeatable=False</code>——成功后再调会被 <code>_called_ok</code> 拦截返回 <code>{`{skipped:true}`}</code>，防止重复下单。</p>
         </Details>
       </Section>
+
+      {/* 工具详情弹窗 */}
+      <Modal
+        open={selectedTool !== null}
+        onClose={() => setSelectedTool(null)}
+        title={selectedTool ? <><code className="!text-brand-600 dark:!text-brand-400">{selectedTool.name}</code>{TOOL_DETAILS[selectedTool.name] && <span className="ml-2 text-xs text-violet-600 dark:text-violet-400">· 有详情</span>}</> : ''}
+        subtitle={selectedTool ? `${selectedTool.ro ? '只读' : '写操作'}${selectedTool.rep ? ' · 可重复' : ''} · 必填: ${selectedTool.req}` : ''}
+      >
+        {selectedTool && (() => {
+          const d = TOOL_DETAILS[selectedTool.name];
+          if (!d) {
+            return (
+              <>
+                <p className="text-slate-600 dark:text-slate-400">{selectedTool.desc}</p>
+                <Callout type="info" title="基础工具">
+                  此工具暂无详细执行逻辑分析。完整定义请查原项目源码 <code className="!text-[12px]">agent/src/tools/</code> 目录。
+                </Callout>
+              </>
+            );
+          }
+          return (
+            <>
+              <p className="mb-4 text-slate-600 dark:text-slate-400">{selectedTool.desc}</p>
+
+              <SubHeading>执行逻辑</SubHeading>
+              <p className="text-[14px]">{d.execLogic}</p>
+
+              {d.modules.length > 0 && (
+                <>
+                  <SubHeading>底层模块</SubHeading>
+                  <ul className="space-y-1 text-[14px]">
+                    {d.modules.map(m => <li key={m} className="flex items-start gap-2"><span className="text-brand-500 mt-0.5">▸</span><code className="!text-[12px] !bg-transparent !border-0 !px-0">{m}</code></li>)}
+                  </ul>
+                </>
+              )}
+
+              <SubHeading>特殊设计</SubHeading>
+              <div className="space-y-2">
+                {d.special.map(s => (
+                  <div key={s.k} className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-3">
+                    <div className="text-[13px] font-semibold text-slate-800 dark:text-slate-200 mb-0.5">{s.k}</div>
+                    <div className="text-[13px] text-slate-600 dark:text-slate-400">{s.v}</div>
+                  </div>
+                ))}
+              </div>
+            </>
+          );
+        })()}
+      </Modal>
 
       {/* 技能全清单 */}
       <Section
