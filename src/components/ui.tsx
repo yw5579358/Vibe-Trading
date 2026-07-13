@@ -1,5 +1,5 @@
-import { type ReactNode, useState } from 'react';
-import { Lightbulb, AlertTriangle, Info, CheckCircle2, Zap, ChevronRight } from 'lucide-react';
+import { type ReactNode, useState, useEffect } from 'react';
+import { Lightbulb, AlertTriangle, Info, CheckCircle2, Zap, ChevronRight, X } from 'lucide-react';
 
 /* =========================================================================
  *  Section — 一页内的主区块
@@ -335,6 +335,75 @@ export function Details({
           {children}
         </div>
       )}
+    </div>
+  );
+}
+
+/* =========================================================================
+ *  Modal — 弹窗（点击查看详情用）
+ * ===================================================================== */
+export function Modal({
+  open,
+  onClose,
+  title,
+  subtitle,
+  children,
+}: {
+  open: boolean;
+  onClose: () => void;
+  title: ReactNode;
+  subtitle?: ReactNode;
+  children?: ReactNode;
+}) {
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 sm:p-8 overflow-y-auto">
+      {/* 遮罩 */}
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      {/* 弹窗体 */}
+      <div className="relative w-full max-w-3xl my-8 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl animate-fade-in">
+        {/* 标题栏 */}
+        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-t-xl">
+          <div className="min-w-0">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">{title}</h3>
+            {subtitle && <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{subtitle}</p>}
+          </div>
+          <button
+            onClick={onClose}
+            className="shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+            aria-label="关闭"
+          >
+            <X size={20} />
+          </button>
+        </div>
+        {/* 内容 */}
+        <div className="px-6 py-5 text-[15px] text-slate-700 dark:text-slate-300 leading-relaxed">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================
+ *  CodeSnippet — 弹窗内的小代码块（不同于 CodeBlock，更紧凑）
+ * ===================================================================== */
+export function CodeSnippet({ label, children }: { label?: string; children: ReactNode }) {
+  return (
+    <div className="my-3">
+      {label && <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">{label}</div>}
+      <pre className="!bg-slate-900 dark:!bg-black !text-[12px] rounded-lg p-3 overflow-x-auto"><code>{children}</code></pre>
     </div>
   );
 }

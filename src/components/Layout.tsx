@@ -1,7 +1,7 @@
 import { type ReactNode, useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
-  Home, Cpu, TrendingUp, Wallet, Terminal, Moon, Sun, Menu, X, BookOpen, LayoutGrid,
+  Home, Cpu, TrendingUp, Wallet, Terminal, Moon, Sun, Menu, X, BookOpen, LayoutGrid, MessageSquareText,
 } from 'lucide-react';
 
 const NAV = [
@@ -11,6 +11,7 @@ const NAV = [
   { to: '/trading', label: '交易与风控', desc: '实盘·影子·Swarm', icon: Wallet },
   { to: '/finance', label: '金融知识', desc: '指标·概念·估值', icon: BookOpen },
   { to: '/capability', label: '能力全览', desc: '72 工具 + 79 技能', icon: LayoutGrid },
+  { to: '/prompts', label: '提示词全览', desc: 'Prompt 工程', icon: MessageSquareText },
   { to: '/operations', label: '上手操作', desc: '配置与工作流', icon: Terminal },
 ];
 
